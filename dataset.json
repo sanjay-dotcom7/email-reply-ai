@@ -1,0 +1,272 @@
+[
+  {
+    "id": "cs_01",
+    "category": "customer_support",
+    "split": "train",
+    "subject": "Order #48213 arrived damaged",
+    "incoming_email": "Hi, I received order #48213 today but the glass vase inside was shattered. Packaging looked fine from outside. Can I get a replacement or refund? Thanks, Mara.",
+    "reference_reply": "Hi Mara, I'm sorry the vase arrived broken - that's frustrating. I've gone ahead and processed a free replacement for order #48213; it'll ship within 2 business days and you'll get a tracking email. No need to return the broken item, just dispose of it safely. If you'd prefer a refund instead, just reply and I'll process that same day. Thanks for your patience!",
+    "key_points": ["apologize for the damaged item", "offer replacement or refund", "reference order #48213", "no need to return broken item"]
+  },
+  {
+    "id": "cs_02",
+    "category": "customer_support",
+    "split": "train",
+    "subject": "Can't log into my account",
+    "incoming_email": "I've tried resetting my password three times and I'm still locked out of my account (email: j.torres@fastmail.com). This is urgent, I need to access an invoice today.",
+    "reference_reply": "Hi, sorry for the trouble - I've manually unlocked the account tied to j.torres@fastmail.com and sent a fresh password reset link that's valid for 24 hours. If it still doesn't work, reply here and I'll pull the invoice you need and email it to you directly so you're not blocked today.",
+    "key_points": ["acknowledge urgency", "unlock or fix account access", "provide a working path to reset", "offer fallback to get the invoice directly"]
+  },
+  {
+    "id": "cs_03",
+    "category": "customer_support",
+    "split": "train",
+    "subject": "Wrong item shipped",
+    "incoming_email": "I ordered the medium size (order #77012) but received a small. Can you send the correct size? I don't need to keep both.",
+    "reference_reply": "Thanks for flagging this, and sorry for the mix-up on order #77012. I've shipped the correct medium size today with expedited shipping at no cost, and you'll get a tracking number shortly. For the small that arrived by mistake, you can keep it or donate it - no need to return it.",
+    "key_points": ["apologize for wrong item", "ship correct size", "reference order #77012", "clarify no return needed for wrong item"]
+  },
+  {
+    "id": "cs_04",
+    "category": "customer_support",
+    "split": "train",
+    "subject": "Product stopped working after 2 weeks",
+    "incoming_email": "The bluetooth speaker I bought two weeks ago won't turn on anymore. It was working fine and I charged it overnight like normal. Is this covered under warranty?",
+    "reference_reply": "Sorry to hear that - a speaker dying that fast definitely isn't normal, and yes, it's covered under our 1-year warranty. I can either send a replacement unit right away or arrange a repair; replacement is usually faster. Let me know your preference and I'll get it moving today.",
+    "key_points": ["confirm it is covered under warranty", "offer replacement or repair", "explain next step to resolve", "acknowledge issue is unusual"]
+  },
+  {
+    "id": "cs_05",
+    "category": "customer_support",
+    "split": "test",
+    "subject": "Subscription charged twice this month",
+    "incoming_email": "Hi, I just noticed I was charged for my monthly subscription twice this month (once on the 1st and again on the 14th). Can you refund the duplicate charge? My account email is dana.k@webmail.com.",
+    "reference_reply": "Hi Dana, thanks for catching that and sorry for the inconvenience. I checked the account under dana.k@webmail.com and confirmed the duplicate charge from the 14th - I've refunded it and you should see it back on your statement within 3-5 business days. I also flagged the billing system so this doesn't happen again next cycle.",
+    "key_points": ["confirm the duplicate charge", "issue a refund for the extra charge", "give a timeframe for the refund", "reassure it won't recur"]
+  },
+  {
+    "id": "sales_01",
+    "category": "sales_inquiry",
+    "split": "train",
+    "subject": "Pricing for team plan",
+    "incoming_email": "Hi, we're a 12-person startup interested in your team plan. Could you send pricing and whether there's a discount for annual billing?",
+    "reference_reply": "Hi, thanks for reaching out! For a 12-person team, our Team plan is $18/user/month billed monthly, or $180/user/year if you go annual - that works out to a 2-month discount. I'm happy to set up a 14-day trial so your team can test it before committing. Want me to spin that up?",
+    "key_points": ["give pricing for team size", "mention annual discount", "offer a trial or next step", "keep tone welcoming"]
+  },
+  {
+    "id": "sales_02",
+    "category": "sales_inquiry",
+    "split": "train",
+    "subject": "Does your product integrate with Salesforce?",
+    "incoming_email": "Before we move forward, we need to confirm: does your platform have a native Salesforce integration, or would we need a third-party connector?",
+    "reference_reply": "Great question - yes, we have a native two-way Salesforce integration (syncs contacts, deals, and activity logs) included on our Growth plan and above, no third-party connector needed. Setup usually takes under 30 minutes with our onboarding team. Happy to do a quick screen-share demo if that would help move the decision along.",
+    "key_points": ["directly answer whether integration exists", "specify which plan includes it", "note setup effort", "offer follow-up like a demo"]
+  },
+  {
+    "id": "sales_03",
+    "category": "sales_inquiry",
+    "split": "train",
+    "subject": "Bulk discount for 50 licenses",
+    "incoming_email": "We're considering purchasing 50 licenses for our department. Is there a volume discount available at that quantity?",
+    "reference_reply": "Yes - at 50 licenses you'd qualify for our volume tier, which is 20% off list price, bringing it to $24/license/month instead of $30. I can also lock in that rate for a 2-year term if that's useful for budgeting. Want me to draft a formal quote you can share internally?",
+    "key_points": ["confirm volume discount exists", "give the discounted price", "mention multi-year lock-in option", "offer to draft a formal quote"]
+  },
+  {
+    "id": "sales_04",
+    "category": "sales_inquiry",
+    "split": "train",
+    "subject": "Trial extension request",
+    "incoming_email": "Our trial ends Friday but our procurement review got delayed. Any chance we can get a 2-week extension?",
+    "reference_reply": "No problem at all - I've extended your trial by 2 weeks, so it now runs through the following Friday. That should give procurement the time they need. Let me know if there's anything I can send over to help speed up their review, like a security or compliance packet.",
+    "key_points": ["approve the extension", "confirm the new end date", "offer supporting materials for procurement"]
+  },
+  {
+    "id": "sales_05",
+    "category": "sales_inquiry",
+    "split": "test",
+    "subject": "Comparison vs a competitor",
+    "incoming_email": "We're also evaluating [Competitor X]. What would you say is the main reason to pick your product over theirs, especially for a 30-person marketing team?",
+    "reference_reply": "Fair question - for a 30-person marketing team, the two things teams usually tell us tip the decision our way are faster onboarding (most teams are live in under a week vs. their typical 3-4 week rollout) and native reporting dashboards, which Competitor X charges extra for as an add-on. Happy to send a side-by-side comparison sheet, or set up a call with one of our marketing-team customers if that would help.",
+    "key_points": ["directly address the comparison question", "give at least one concrete differentiator", "tie the answer to the marketing team use case", "offer supporting evidence or next step"]
+  },
+  {
+    "id": "sched_01",
+    "category": "scheduling",
+    "split": "train",
+    "subject": "Reschedule Thursday's call",
+    "incoming_email": "Something came up and I can't make our 2pm call on Thursday. Could we move it to Friday morning instead?",
+    "reference_reply": "No worries at all - Friday morning works for me. Does 10am Friday suit you? If so I'll send an updated invite; if not, let me know a couple of times that work and I'll match one.",
+    "key_points": ["agree to reschedule", "propose or confirm a specific new time", "offer to send updated invite"]
+  },
+  {
+    "id": "sched_02",
+    "category": "scheduling",
+    "split": "train",
+    "subject": "Finding a time for a 3-way sync",
+    "incoming_email": "Can we get you, me, and Priya on a call sometime next week to align on the launch timeline? I'm flexible except Monday.",
+    "reference_reply": "Works for me - I'm open Tuesday afternoon or Wednesday morning next week. I'll loop in Priya and propose Wednesday 10am as a first option, with Tuesday 2pm as backup, and send a poll if neither lands for everyone.",
+    "key_points": ["confirm availability generally", "propose specific time options", "mention coordinating with the third person"]
+  },
+  {
+    "id": "sched_03",
+    "category": "scheduling",
+    "split": "train",
+    "subject": "Interview scheduling",
+    "incoming_email": "Following up from HR - could we set up your interview with the candidate for early next week? They're available Mon-Wed afternoons.",
+    "reference_reply": "Thanks for the update - Tuesday at 2pm or Wednesday at 3pm both work well on my end. Let's go with Tuesday 2pm if the candidate is fine with that; otherwise Wednesday 3pm is my backup. Happy to hop on a quick 30-minute slot either day.",
+    "key_points": ["give concrete availability", "pick a preferred option", "confirm meeting length or format"]
+  },
+  {
+    "id": "sched_04",
+    "category": "scheduling",
+    "split": "train",
+    "subject": "Client wants to move up the kickoff",
+    "incoming_email": "The client asked if we can move the project kickoff from next Wednesday to this Friday instead - is that feasible on your end?",
+    "reference_reply": "Friday works for me, assuming the deck and requirements doc are ready by Thursday EOD - can you confirm that's on track? If so, I'll block Friday 11am and send the updated calendar invite to everyone today.",
+    "key_points": ["agree or flag feasibility", "name a dependency or condition if any", "commit to sending updated invite"]
+  },
+  {
+    "id": "sched_05",
+    "category": "scheduling",
+    "split": "test",
+    "subject": "Doctor's appointment conflicts with team meeting",
+    "incoming_email": "I have a doctor's appointment during our usual Tuesday 9am standup this week. Can we either move the standup or is it fine if I just catch up on notes after?",
+    "reference_reply": "Totally fine either way, but let's just move it this week so you don't miss anything live - how does 11am Tuesday work instead? If that's tricky given the appointment, catching up on the notes afterward is genuinely fine too, just let me know which you'd prefer and I'll adjust the invite.",
+    "key_points": ["acknowledge the scheduling conflict", "offer a concrete alternative time", "give the person the choice / flexibility", "commit to updating the invite if moved"]
+  },
+  {
+    "id": "bill_01",
+    "category": "billing_inquiry",
+    "split": "train",
+    "subject": "Question about an unexpected line item",
+    "incoming_email": "My latest invoice has a $49 'overage fee' I don't recognize. Can you explain what that's for?",
+    "reference_reply": "Good question - that $49 overage fee is for exceeding your plan's 10,000 API call limit last month; your account used about 12,400 calls. I can walk you through upgrading to a higher tier to avoid this going forward, or if this was a one-time spike, I'm happy to waive this instance as a courtesy. Which would you prefer?",
+    "key_points": ["explain what the charge is for", "give the underlying reason (usage data)", "offer a path to avoid it in future", "offer a resolution like a waiver or upgrade"]
+  },
+  {
+    "id": "bill_02",
+    "category": "billing_inquiry",
+    "split": "train",
+    "subject": "Requesting a formal invoice with our tax ID",
+    "incoming_email": "Could you reissue our last invoice with our company's tax ID included? Accounting needs it for their records. Tax ID: 84-2210xxx.",
+    "reference_reply": "Of course - I've updated our records with tax ID 84-2210xxx and reissued the last invoice with it included. You'll find it attached to this email, and all future invoices will automatically include it going forward.",
+    "key_points": ["confirm the tax ID was added", "reissue or attach the corrected invoice", "confirm future invoices will reflect it"]
+  },
+  {
+    "id": "bill_03",
+    "category": "billing_inquiry",
+    "split": "train",
+    "subject": "Switching from monthly to annual billing",
+    "incoming_email": "We'd like to switch our plan from monthly to annual billing to get the discount. What's the process, and will we be charged again right away?",
+    "reference_reply": "Happy to switch you over - the annual discount brings your rate down by about 17%. When we make the switch, we'll prorate your remaining monthly balance against the annual charge, so you won't be double-billed; you'll just see one adjusted charge reflecting the difference. I can process this today if you confirm you'd like to proceed.",
+    "key_points": ["confirm the switch is possible", "mention the discount", "explain how proration/billing will work (no double charge)", "ask for confirmation to proceed"]
+  },
+  {
+    "id": "bill_04",
+    "category": "billing_inquiry",
+    "split": "train",
+    "subject": "Card declined, need to update payment method",
+    "incoming_email": "I got a notice that my card on file was declined. I have a new card - how do I update it before my account gets suspended?",
+    "reference_reply": "No problem, and good news - your account won't be suspended for a few more days, so there's time. You can update your card directly under Billing > Payment Methods in your account settings; once the new card is saved, I'll manually retry the failed charge right away so nothing gets interrupted.",
+    "key_points": ["reassure about suspension timeline", "explain how to update the payment method", "offer to retry the charge once updated"]
+  },
+  {
+    "id": "bill_05",
+    "category": "billing_inquiry",
+    "split": "test",
+    "subject": "Refund request after cancelling mid-cycle",
+    "incoming_email": "I cancelled my subscription on the 5th but was billed for the full month on the 1st. Can I get a prorated refund for the unused days?",
+    "reference_reply": "Thanks for reaching out, and sorry for the confusion. Since you cancelled on the 5th, you're entitled to a prorated refund for the remaining 26 days of that billing cycle - that comes to about $38.50 based on your plan rate, which I've refunded to your original payment method. It should land within 3-5 business days.",
+    "key_points": ["confirm eligibility for a prorated refund", "state or estimate the refund amount", "process/confirm the refund", "give a timeframe for it to appear"]
+  },
+  {
+    "id": "cmp_01",
+    "category": "complaint_escalation",
+    "split": "train",
+    "subject": "Extremely disappointed - third support ticket ignored",
+    "incoming_email": "This is my THIRD email about the same login bug and nobody has responded in over a week. I'm seriously considering cancelling. This is unacceptable.",
+    "reference_reply": "You're right to be frustrated, and I'm sorry this has dragged on for a week with no update - that's not the experience we want you to have. I've escalated your login bug directly to our engineering lead as a priority ticket, and I'll personally follow up with a real update within 24 hours, not another form response. I'd also like to offer a service credit for the trouble this has caused.",
+    "key_points": ["acknowledge the frustration without being defensive", "apologize sincerely", "escalate the underlying issue", "commit to a concrete follow-up timeframe", "offer some form of goodwill gesture"]
+  },
+  {
+    "id": "cmp_02",
+    "category": "complaint_escalation",
+    "split": "train",
+    "subject": "Delivery 2 weeks late with no communication",
+    "incoming_email": "My order was supposed to arrive two weeks ago. I've heard nothing from anyone. I want to know exactly what happened and what you're going to do about it.",
+    "reference_reply": "I completely understand the frustration - two weeks with no update is well below what you should expect from us, and I'm sorry. Looking into it, your order was held up at a regional carrier facility; it's now been re-routed and is scheduled to arrive within 3 business days. I've also applied a refund of your shipping cost for the delay. I'll personally track this until it arrives.",
+    "key_points": ["acknowledge and apologize for the delay", "explain what actually happened", "give a concrete new arrival estimate", "offer compensation like a shipping refund"]
+  },
+  {
+    "id": "cmp_03",
+    "category": "complaint_escalation",
+    "split": "train",
+    "subject": "Rude support interaction",
+    "incoming_email": "The agent I spoke to yesterday was dismissive and talked over me the entire call. I didn't even get my question answered. I want this looked into.",
+    "reference_reply": "I'm sorry to hear that - that's not the standard we hold our team to, and I appreciate you telling me directly. I'll be reviewing the call with the team lead to address it. In the meantime, let's make sure your original question actually gets answered - can you tell me again what you needed, and I'll personally see it through this time?",
+    "key_points": ["apologize for the poor interaction", "commit to internal follow-up on the behavior", "avoid being defensive", "re-address the original unresolved issue"]
+  },
+  {
+    "id": "cmp_04",
+    "category": "complaint_escalation",
+    "split": "train",
+    "subject": "Charged after cancelling account entirely",
+    "incoming_email": "I cancelled my account two months ago and just got charged again. This is the second time this has happened. I want a full refund and confirmation this is actually cancelled.",
+    "reference_reply": "I'm sorry - this should not have happened a second time, and I understand why that's alarming. I've confirmed your account is now fully cancelled and closed, refunded both incorrect charges in full (you'll see them back within 3-5 business days), and flagged your account so no further charges can be processed. I'd also like to send written confirmation once the refund clears so you have it on record.",
+    "key_points": ["apologize and acknowledge the repeat failure", "confirm the account is actually cancelled", "refund the incorrect charges", "prevent recurrence and offer written confirmation"]
+  },
+  {
+    "id": "cmp_05",
+    "category": "complaint_escalation",
+    "split": "test",
+    "subject": "Product safety concern",
+    "incoming_email": "I need to flag something serious: the phone charger I bought from you got noticeably hot and started smelling like burning plastic after 10 minutes of use. I unplugged it immediately. This seems like a real safety hazard and I want to know what you're doing about it.",
+    "reference_reply": "Thank you for reporting this right away and for unplugging it immediately - that was the right call. This is a serious safety concern and I'm treating it as one: please stop using the charger entirely, and I'm sending a prepaid return label so we can inspect the unit and check it against other units from the same batch. I'm also issuing a full refund now, independent of the return, and flagging this internally with our product safety team today.",
+    "key_points": ["take the safety concern seriously, not dismissively", "instruct the user to stop using the product", "arrange to get the unit back for inspection", "issue a refund", "mention internal escalation to the right team"]
+  },
+  {
+    "id": "vend_01",
+    "category": "vendor_negotiation",
+    "split": "train",
+    "subject": "Requesting better payment terms",
+    "incoming_email": "As we renew this year, we'd like to move from Net 30 to Net 60 payment terms given the size of our order. Is that something you can accommodate?",
+    "reference_reply": "Thanks for raising this ahead of renewal. Net 60 is a bigger shift than we typically offer, but given your order volume, I can offer Net 45 as a middle ground, which I'm able to approve without further sign-off. If Net 60 is a hard requirement, I'd need to check with finance, but I wanted to give you a fast answer on what I can commit to today.",
+    "key_points": ["respond to the specific request (Net 60)", "offer a concrete counter or alternative", "be transparent about what needs further approval", "keep tone collaborative, not just a flat no"]
+  },
+  {
+    "id": "vend_02",
+    "category": "vendor_negotiation",
+    "split": "train",
+    "subject": "Asking for a price hold on renewal",
+    "incoming_email": "We noticed pricing has gone up 15% since we signed last year. Given we're renewing for another 2 years, could you hold last year's pricing?",
+    "reference_reply": "I appreciate you bringing this up directly. A full price hold isn't something I can approve, but for a 2-year renewal I can cap the increase at 5% instead of the standard 15%, and lock that rate for the full term so you're protected from further increases. Let me know if that works and I'll get the paperwork moving.",
+    "key_points": ["respond to the price hold request specifically", "offer a concrete counter-proposal", "tie the offer to the multi-year commitment", "invite the client to confirm and move forward"]
+  },
+  {
+    "id": "vend_03",
+    "category": "vendor_negotiation",
+    "split": "train",
+    "subject": "Requesting an SLA amendment",
+    "incoming_email": "Our legal team wants the SLA response-time guarantee tightened from 24 hours to 8 hours for critical issues before we sign. Can you accommodate this?",
+    "reference_reply": "That's a reasonable ask given how critical issues are for your team - I can commit to an 8-hour response guarantee specifically for issues classified as critical severity, while keeping 24 hours for standard priority items. I'll get the amended SLA language drafted and sent to your legal team by end of week.",
+    "key_points": ["directly respond to the 8-hour request", "clarify scope (critical vs standard)", "commit to a concrete next step (drafting amendment)", "give a timeframe"]
+  },
+  {
+    "id": "vend_04",
+    "category": "vendor_negotiation",
+    "split": "train",
+    "subject": "Vendor pushing back on our proposed discount",
+    "incoming_email": "We understand you're asking for a 25% volume discount, but that's beyond what we can offer given current margins. We can go to 12%. Let us know if that works or if there's room to meet in the middle.",
+    "reference_reply": "Thanks for the transparency on margins - 12% is a bit lower than we were hoping for, but I understand the constraint. Would 18% work if we commit to a 3-year term instead of 1-year? That gives you more predictability on your side, which might make the deeper discount easier to justify internally.",
+    "key_points": ["acknowledge the vendor's counter without immediately caving", "propose a specific middle-ground number", "offer something in exchange (e.g., longer term) to justify it", "keep the negotiation moving forward"]
+  },
+  {
+    "id": "vend_05",
+    "category": "vendor_negotiation",
+    "split": "test",
+    "subject": "Supplier flags a raw material cost increase",
+    "incoming_email": "Due to a rise in raw material costs, we need to increase our unit price from $4.20 to $4.95 starting next quarter. We understand this affects your margins and are open to discussing, but wanted to give you advance notice.",
+    "reference_reply": "Appreciate the advance notice rather than a surprise mid-quarter change - that genuinely helps us plan. A jump to $4.95 is a meaningful hit on our side though, so before we accept it outright, would you be open to phasing it in - say $4.55 next quarter and $4.95 the quarter after - or discussing a small volume commitment from us in exchange for holding closer to $4.60? Open to a call this week to work through it.",
+    "key_points": ["acknowledge the advance notice constructively", "not simply accept the full increase without pushback", "propose a specific alternative (phasing or volume-for-price)", "offer to continue the conversation (e.g., a call)"]
+  }
+]
