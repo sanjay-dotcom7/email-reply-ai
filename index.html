@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reply Assistant</title>
+<style>
+  :root{
+    --paper: #F7F6F2;
+    --paper-alt: #FFFFFF;
+    --ink: #232922;
+    --ink-soft: #63695F;
+    --line: #DFDAD0;
+    --accent: #2F6F62;
+    --accent-soft: #DCEAE6;
+    --warn: #9C6A20;
+    --warn-soft: #F3E6D3;
+    --good: #3F7D4E;
+    --good-soft: #DEEEE0;
+    --radius: 6px;
+    --ui-font: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --serif-font: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  }
+  *{ box-sizing: border-box; }
+  html, body{ height: 100%; }
+  body{
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--ui-font);
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+  a{ color: var(--accent); }
+  button{ font-family: inherit; }
+  :focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+  }
+
+  .app-header{
+    padding: 22px 28px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .app-header h1{
+    margin: 0;
+    font-size: 19px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  .app-header p{
+    margin: 4px 0 0;
+    color: var(--ink-soft);
+    font-size: 13px;
+    max-width: 46ch;
+  }
+  .mode-note{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--paper-alt);
+    white-space: nowrap;
+  }
+  .mode-note.live{ color: var(--accent); border-color: var(--accent-soft); background: var(--accent-soft); }
+
+  .layout{
+    display: grid;
+    grid-template-columns: 230px minmax(0,1fr) 300px;
+    min-height: calc(100vh - 78px);
+  }
+
+  /* ---------- Inbox column ---------- */
+  .inbox{
+    border-right: 1px solid var(--line);
+    padding: 14px 0;
+    overflow-y: auto;
+  }
+  .inbox-title{
+    padding: 0 16px 10px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .inbox-item{
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    padding: 10px 16px;
+    cursor: pointer;
+    display: block;
+  }
+  .inbox-item:hover{ background: var(--paper-alt); }
+  .inbox-item.active{
+    background: var(--paper-alt);
+    border-left-color: var(--accent);
+  }
+  .inbox-item .subj{
+    font-weight: 600;
+    font-size: 13.5px;
+    margin-bottom: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .inbox-item .snip{
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tag{
+    display: inline-block;
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-top: 5px;
+  }
+  .compose-toggle{
+    margin: 10px 16px 0;
+    width: calc(100% - 32px);
+    padding: 8px 10px;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius);
+    background: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 12.5px;
+  }
+  .compose-toggle:hover{ border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- Middle: reading pane ---------- */
+  .reader{
+    padding: 26px 34px;
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+  }
+  .empty-state{ color: var(--ink-soft); padding-top: 40px; text-align: center; }
+
+  .email-block{ max-width: 640px; }
+  .email-meta{ margin-bottom: 18px; }
+  .email-meta .subject{ font-size: 19px; font-weight: 650; margin: 0 0 6px; }
+  .email-meta .from{ font-size: 12.5px; color: var(--ink-soft); }
+  .email-body{
+    font-family: var(--serif-font);
+    font-size: 15.5px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    padding: 16px 18px;
+    background: var(--paper-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .compose-form label{ display:block; font-size: 12.5px; color: var(--ink-soft); margin: 14px 0 4px; }
+  .compose-form input, .compose-form textarea{
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--paper-alt);
+    color: var(--ink);
+  }
+  .compose-form textarea{ font-family: var(--serif-font); min-height: 130px; resize: vertical; }
+
+  .primary-btn{
+    margin-top: 18px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .primary-btn:hover{ opacity: 0.92; }
+  .primary-btn:disabled{ opacity: 0.55; cursor: default; }
+
+  .status-line{
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 18px;
+  }
+  .spinner{
+    width: 13px; height: 13px;
+    border: 2px solid var(--line);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .reply-box{
+    margin-top: 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .reply-box-head{
+    padding: 9px 14px;
+    background: var(--paper-alt);
+    border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .reply-box textarea{
+    width: 100%;
+    border: none;
+    padding: 16px 18px;
+    font-family: var(--serif-font);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 160px;
+    resize: vertical;
+    background: #fff;
+    color: var(--ink);
+  }
+  .copy-btn{
+    background: none; border: 1px solid var(--line); border-radius: 4px;
+    padding: 4px 9px; font-size: 12px; color: var(--ink-soft); cursor: pointer;
+  }
+  .copy-btn:hover{ border-color: var(--accent); color: var(--accent); }
+
+  .grounding-note{
+    margin-top: 12px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .grounding-note strong{ color: var(--ink); font-weight: 600; }
+
+  .error-note{
+    margin-top: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--warn-soft);
+    background: var(--warn-soft);
+    color: var(--warn);
+    border-radius: var(--radius);
+    font-size: 13px;
+  }
+
+  /* ---------- Right: quality panel ---------- */
+  .quality{
+    padding: 26px 22px;
+    overflow-y: auto;
+  }
+  .quality h2{
+    font-size: 13px;
+    text-transform: none;
+    margin: 0 0 4px;
+    font-weight: 650;
+  }
+  .quality .sub{
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+  }
+  .quality-empty{
+    color: var(--ink-soft);
+    font-size: 13px;
+    padding-top: 6px;
+  }
+
+  .meter-wrap{ margin-bottom: 22px; }
+  .meter-track{
+    height: 10px;
+    border-radius: 5px;
+    background: var(--line);
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .meter-fill{
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.4s ease;
+  }
+  .meter-label{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .meter-label .score{ font-size: 22px; font-weight: 650; }
+  .meter-label .band{ font-size: 12.5px; font-weight: 600; }
+
+  .section-title{
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 20px 0 8px;
+  }
+  .checklist{ list-style: none; margin: 0; padding: 0; }
+  .checklist li{
+    display: flex;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .checklist li:last-child{ border-bottom: none; }
+  .check-icon{ flex-shrink: 0; font-weight: 700; margin-top: 1px; }
+  .check-icon.yes{ color: var(--good); }
+  .check-icon.no{ color: var(--warn); }
+  .checklist .why{ display:block; color: var(--ink-soft); font-size: 11.5px; margin-top: 2px; }
+
+  .rubric-row{ margin-bottom: 10px; }
+  .rubric-row .rlabel{
+    display: flex; justify-content: space-between;
+    font-size: 12.5px; margin-bottom: 4px; color: var(--ink-soft);
+  }
+  .rubric-track{ height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .rubric-fill{ height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s ease; }
+
+  .halluc-banner{
+    margin-top: 18px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    background: var(--warn-soft);
+    color: var(--warn);
+    font-size: 12.5px;
+  }
+  .halluc-ok{
+    margin-top: 18px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    background: var(--good-soft);
+    color: var(--good);
+    font-size: 12.5px;
+  }
+
+  @media (max-width: 900px){
+    .layout{ grid-template-columns: 1fr; }
+    .inbox{
+      border-right: none; border-bottom: 1px solid var(--line);
+      display: flex; overflow-x: auto; padding: 10px;
+    }
+    .inbox-title{ display: none; }
+    .inbox-item{ flex: 0 0 auto; width: 220px; border-left: none; border-bottom: 3px solid transparent; }
+    .inbox-item.active{ border-left: none; border-bottom-color: var(--accent); }
+    .compose-toggle{ flex: 0 0 auto; width: 180px; margin: 0; }
+    .reader{ border-right: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div>
+    <h1>Reply Assistant</h1>
+    <p>Pick an email, get a suggested reply grounded in how your team has answered similar messages before, and see a plain-language quality check before you send it.</p>
+  </div>
+  <div class="mode-note" id="modeNote">Connecting to model…</div>
+</div>
+
+<div class="layout">
+  <div class="inbox" id="inboxList"></div>
+
+  <div class="reader" id="readerPane">
+    <div class="empty-state">Choose an email on the left to get started.</div>
+  </div>
+
+  <div class="quality" id="qualityPane">
+    <h2>Quality check</h2>
+    <p class="sub">Shows up once a reply has been drafted.</p>
+    <div class="quality-empty">Nothing to check yet.</div>
+  </div>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------
+   DATA
+   6 sample inbox emails (held-out "test" set from the project's dataset)
+   + 24 past resolved emails used only as grounding context, never shown
+   directly as inbox items. Each inbox email carries a "keyPoints"
+   checklist (what a good reply needs to cover) and the reply that was
+   actually sent historically, used only for the background similarity
+   check - never shown to the model as an answer key.
+--------------------------------------------------------------------- */
+const PAST_EMAILS = [
+  {id:"cs_01", category:"Support", subject:"Order #48213 arrived damaged", body:"Hi, I received order #48213 today but the glass vase inside was shattered. Packaging looked fine from outside. Can I get a replacement or refund? Thanks, Mara.", reply:"Hi Mara, I'm sorry the vase arrived broken - that's frustrating. I've gone ahead and processed a free replacement for order #48213; it'll ship within 2 business days and you'll get a tracking email. No need to return the broken item, just dispose of it safely. If you'd prefer a refund instead, just reply and I'll process that same day. Thanks for your patience!"},
+  {id:"cs_02", category:"Support", subject:"Can't log into my account", body:"I've tried resetting my password three times and I'm still locked out of my account (email: j.torres@fastmail.com). This is urgent, I need to access an invoice today.", reply:"Hi, sorry for the trouble - I've manually unlocked the account tied to j.torres@fastmail.com and sent a fresh password reset link that's valid for 24 hours. If it still doesn't work, reply here and I'll pull the invoice you need and email it to you directly so you're not blocked today."},
+  {id:"cs_03", category:"Support", subject:"Wrong item shipped", body:"I ordered the medium size (order #77012) but received a small. Can you send the correct size? I don't need to keep both.", reply:"Thanks for flagging this, and sorry for the mix-up on order #77012. I've shipped the correct medium size today with expedited shipping at no cost, and you'll get a tracking number shortly. For the small that arrived by mistake, you can keep it or donate it - no need to return it."},
+  {id:"cs_04", category:"Support", subject:"Product stopped working after 2 weeks", body:"The bluetooth speaker I bought two weeks ago won't turn on anymore. It was working fine and I charged it overnight like normal. Is this covered under warranty?", reply:"Sorry to hear that - a speaker dying that fast definitely isn't normal, and yes, it's covered under our 1-year warranty. I can either send a replacement unit right away or arrange a repair; replacement is usually faster. Let me know your preference and I'll get it moving today."},
+  {id:"sales_01", category:"Sales", subject:"Pricing for team plan", body:"Hi, we're a 12-person startup interested in your team plan. Could you send pricing and whether there's a discount for annual billing?", reply:"Hi, thanks for reaching out! For a 12-person team, our Team plan is $18/user/month billed monthly, or $180/user/year if you go annual - that works out to a 2-month discount. I'm happy to set up a 14-day trial so your team can test it before committing. Want me to spin that up?"},
+  {id:"sales_02", category:"Sales", subject:"Does your product integrate with Salesforce?", body:"Before we move forward, we need to confirm: does your platform have a native Salesforce integration, or would we need a third-party connector?", reply:"Great question - yes, we have a native two-way Salesforce integration (syncs contacts, deals, and activity logs) included on our Growth plan and above, no third-party connector needed. Setup usually takes under 30 minutes with our onboarding team. Happy to do a quick screen-share demo if that would help move the decision along."},
+  {id:"sales_03", category:"Sales", subject:"Bulk discount for 50 licenses", body:"We're considering purchasing 50 licenses for our department. Is there a volume discount available at that quantity?", reply:"Yes - at 50 licenses you'd qualify for our volume tier, which is 20% off list price, bringing it to $24/license/month instead of $30. I can also lock in that rate for a 2-year term if that's useful for budgeting. Want me to draft a formal quote you can share internally?"},
+  {id:"sales_04", category:"Sales", subject:"Trial extension request", body:"Our trial ends Friday but our procurement review got delayed. Any chance we can get a 2-week extension?", reply:"No problem at all - I've extended your trial by 2 weeks, so it now runs through the following Friday. That should give procurement the time they need. Let me know if there's anything I can send over to help speed up their review, like a security or compliance packet."},
+  {id:"sched_01", category:"Scheduling", subject:"Reschedule Thursday's call", body:"Something came up and I can't make our 2pm call on Thursday. Could we move it to Friday morning instead?", reply:"No worries at all - Friday morning works for me. Does 10am Friday suit you? If so I'll send an updated invite; if not, let me know a couple of times that work and I'll match one."},
+  {id:"sched_02", category:"Scheduling", subject:"Finding a time for a 3-way sync", body:"Can we get you, me, and Priya on a call sometime next week to align on the launch timeline? I'm flexible except Monday.", reply:"Works for me - I'm open Tuesday afternoon or Wednesday morning next week. I'll loop in Priya and propose Wednesday 10am as a first option, with Tuesday 2pm as backup, and send a poll if neither lands for everyone."},
+  {id:"sched_03", category:"Scheduling", subject:"Interview scheduling", body:"Following up from HR - could we set up your interview with the candidate for early next week? They're available Mon-Wed afternoons.", reply:"Thanks for the update - Tuesday at 2pm or Wednesday at 3pm both work well on my end. Let's go with Tuesday 2pm if the candidate is fine with that; otherwise Wednesday 3pm is my backup. Happy to hop on a quick 30-minute slot either day."},
+  {id:"sched_04", category:"Scheduling", subject:"Client wants to move up the kickoff", body:"The client asked if we can move the project kickoff from next Wednesday to this Friday instead - is that feasible on your end?", reply:"Friday works for me, assuming the deck and requirements doc are ready by Thursday EOD - can you confirm that's on track? If so, I'll block Friday 11am and send the updated calendar invite to everyone today."},
+  {id:"bill_01", category:"Billing", subject:"Question about an unexpected line item", body:"My latest invoice has a $49 'overage fee' I don't recognize. Can you explain what that's for?", reply:"Good question - that $49 overage fee is for exceeding your plan's 10,000 API call limit last month; your account used about 12,400 calls. I can walk you through upgrading to a higher tier to avoid this going forward, or if this was a one-time spike, I'm happy to waive this instance as a courtesy. Which would you prefer?"},
+  {id:"bill_02", category:"Billing", subject:"Requesting a formal invoice with our tax ID", body:"Could you reissue our last invoice with our company's tax ID included? Accounting needs it for their records. Tax ID: 84-2210xxx.", reply:"Of course - I've updated our records with tax ID 84-2210xxx and reissued the last invoice with it included. You'll find it attached to this email, and all future invoices will automatically include it going forward."},
+  {id:"bill_03", category:"Billing", subject:"Switching from monthly to annual billing", body:"We'd like to switch our plan from monthly to annual billing to get the discount. What's the process, and will we be charged again right away?", reply:"Happy to switch you over - the annual discount brings your rate down by about 17%. When we make the switch, we'll prorate your remaining monthly balance against the annual charge, so you won't be double-billed; you'll just see one adjusted charge reflecting the difference. I can process this today if you confirm you'd like to proceed."},
+  {id:"bill_04", category:"Billing", subject:"Card declined, need to update payment method", body:"I got a notice that my card on file was declined. I have a new card - how do I update it before my account gets suspended?", reply:"No problem, and good news - your account won't be suspended for a few more days, so there's time. You can update your card directly under Billing > Payment Methods in your account settings; once the new card is saved, I'll manually retry the failed charge right away so nothing gets interrupted."},
+  {id:"cmp_01", category:"Complaint", subject:"Extremely disappointed - third support ticket ignored", body:"This is my THIRD email about the same login bug and nobody has responded in over a week. I'm seriously considering cancelling. This is unacceptable.", reply:"You're right to be frustrated, and I'm sorry this has dragged on for a week with no update - that's not the experience we want you to have. I've escalated your login bug directly to our engineering lead as a priority ticket, and I'll personally follow up with a real update within 24 hours, not another form response. I'd also like to offer a service credit for the trouble this has caused."},
+  {id:"cmp_02", category:"Complaint", subject:"Delivery 2 weeks late with no communication", body:"My order was supposed to arrive two weeks ago. I've heard nothing from anyone. I want to know exactly what happened and what you're going to do about it.", reply:"I completely understand the frustration - two weeks with no update is well below what you should expect from us, and I'm sorry. Looking into it, your order was held up at a regional carrier facility; it's now been re-routed and is scheduled to arrive within 3 business days. I've also applied a refund of your shipping cost for the delay. I'll personally track this until it arrives."},
+  {id:"cmp_03", category:"Complaint", subject:"Rude support interaction", body:"The agent I spoke to yesterday was dismissive and talked over me the entire call. I didn't even get my question answered. I want this looked into.", reply:"I'm sorry to hear that - that's not the standard we hold our team to, and I appreciate you telling me directly. I'll be reviewing the call with the team lead to address it. In the meantime, let's make sure your original question actually gets answered - can you tell me again what you needed, and I'll personally see it through this time?"},
+  {id:"cmp_04", category:"Complaint", subject:"Charged after cancelling account entirely", body:"I cancelled my account two months ago and just got charged again. This is the second time this has happened. I want a full refund and confirmation this is actually cancelled.", reply:"I'm sorry - this should not have happened a second time, and I understand why that's alarming. I've confirmed your account is now fully cancelled and closed, refunded both incorrect charges in full (you'll see them back within 3-5 business days), and flagged your account so no further charges can be processed. I'd also like to send written confirmation once the refund clears so you have it on record."},
+  {id:"vend_01", category:"Vendor", subject:"Requesting better payment terms", body:"As we renew this year, we'd like to move from Net 30 to Net 60 payment terms given the size of our order. Is that something you can accommodate?", reply:"Thanks for raising this ahead of renewal. Net 60 is a bigger shift than we typically offer, but given your order volume, I can offer Net 45 as a middle ground, which I'm able to approve without further sign-off. If Net 60 is a hard requirement, I'd need to check with finance, but I wanted to give you a fast answer on what I can commit to today."},
+  {id:"vend_02", category:"Vendor", subject:"Asking for a price hold on renewal", body:"We noticed pricing has gone up 15% since we signed last year. Given we're renewing for another 2 years, could you hold last year's pricing?", reply:"I appreciate you bringing this up directly. A full price hold isn't something I can approve, but for a 2-year renewal I can cap the increase at 5% instead of the standard 15%, and lock that rate for the full term so you're protected from further increases. Let me know if that works and I'll get the paperwork moving."},
+  {id:"vend_03", category:"Vendor", subject:"Requesting an SLA amendment", body:"Our legal team wants the SLA response-time guarantee tightened from 24 hours to 8 hours for critical issues before we sign. Can you accommodate this?", reply:"That's a reasonable ask given how critical issues are for your team - I can commit to an 8-hour response guarantee specifically for issues classified as critical severity, while keeping 24 hours for standard priority items. I'll get the amended SLA language drafted and sent to your legal team by end of week."},
+  {id:"vend_04", category:"Vendor", subject:"Vendor pushing back on our proposed discount", body:"We understand you're asking for a 25% volume discount, but that's beyond what we can offer given current margins. We can go to 12%. Let us know if that works or if there's room to meet in the middle.", reply:"Thanks for the transparency on margins - 12% is a bit lower than we were hoping for, but I understand the constraint. Would 18% work if we commit to a 3-year term instead of 1-year? That gives you more predictability on your side, which might make the deeper discount easier to justify internally."}
+];
+
+const INBOX_EMAILS = [
+  {id:"cs_05", category:"Support", subject:"Subscription charged twice this month", from:"dana.k@webmail.com", body:"Hi, I just noticed I was charged for my monthly subscription twice this month (once on the 1st and again on the 14th). Can you refund the duplicate charge? My account email is dana.k@webmail.com.", keyPoints:["Confirm the duplicate charge","Issue a refund for the extra charge","Give a timeframe for the refund","Reassure it won't happen again"], reference:"Hi Dana, thanks for catching that and sorry for the inconvenience. I checked the account under dana.k@webmail.com and confirmed the duplicate charge from the 14th - I've refunded it and you should see it back on your statement within 3-5 business days. I also flagged the billing system so this doesn't happen again next cycle."},
+  {id:"sales_05", category:"Sales", subject:"Comparison vs a competitor", from:"j.malik@brightpath.io", body:"We're also evaluating [Competitor X]. What would you say is the main reason to pick your product over theirs, especially for a 30-person marketing team?", keyPoints:["Directly address the comparison question","Give at least one concrete differentiator","Tie the answer to the marketing team use case","Offer supporting evidence or a next step"], reference:"Fair question - for a 30-person marketing team, the two things teams usually tell us tip the decision our way are faster onboarding and native reporting dashboards, which Competitor X charges extra for as an add-on. Happy to send a side-by-side comparison sheet, or set up a call with one of our marketing-team customers if that would help."},
+  {id:"sched_05", category:"Scheduling", subject:"Doctor's appointment conflicts with team meeting", from:"r.chen@teamcorp.com", body:"I have a doctor's appointment during our usual Tuesday 9am standup this week. Can we either move the standup or is it fine if I just catch up on notes after?", keyPoints:["Acknowledge the scheduling conflict","Offer a concrete alternative time","Give the person the choice / flexibility","Commit to updating the invite if moved"], reference:"Totally fine either way, but let's just move it this week so you don't miss anything live - how does 11am Tuesday work instead? If that's tricky, catching up on notes afterward is genuinely fine too, just let me know which you'd prefer."},
+  {id:"bill_05", category:"Billing", subject:"Refund request after cancelling mid-cycle", from:"omar.f@fieldnote.co", body:"I cancelled my subscription on the 5th but was billed for the full month on the 1st. Can I get a prorated refund for the unused days?", keyPoints:["Confirm eligibility for a prorated refund","State or estimate the refund amount","Process/confirm the refund","Give a timeframe for it to appear"], reference:"Thanks for reaching out, and sorry for the confusion. Since you cancelled on the 5th, you're entitled to a prorated refund for the remaining 26 days of that billing cycle - that comes to about $38.50, which I've refunded to your original payment method. It should land within 3-5 business days."},
+  {id:"cmp_05", category:"Complaint", subject:"Product safety concern", from:"h.iwu@personal-mail.com", body:"I need to flag something serious: the phone charger I bought from you got noticeably hot and started smelling like burning plastic after 10 minutes of use. I unplugged it immediately. This seems like a real safety hazard and I want to know what you're doing about it.", keyPoints:["Take the safety concern seriously, not dismissively","Instruct the user to stop using the product","Arrange to get the unit back for inspection","Issue a refund","Mention internal escalation to the right team"], reference:"Thank you for reporting this right away and for unplugging it immediately - that was the right call. Please stop using the charger entirely; I'm sending a prepaid return label so we can inspect the unit and check it against the same batch, issuing a full refund now regardless of the return, and flagging this internally with our product safety team today."},
+  {id:"vend_05", category:"Vendor", subject:"Supplier flags a raw material cost increase", from:"purchasing@northfield-supply.com", body:"Due to a rise in raw material costs, we need to increase our unit price from $4.20 to $4.95 starting next quarter. We understand this affects your margins and are open to discussing, but wanted to give you advance notice.", keyPoints:["Acknowledge the advance notice constructively","Not simply accept the full increase without pushback","Propose a specific alternative (phasing or volume-for-price)","Offer to continue the conversation"], reference:"Appreciate the advance notice rather than a surprise mid-quarter change. A jump to $4.95 is a meaningful hit on our side though - would you be open to phasing it in, say $4.55 next quarter and $4.95 the quarter after? Open to a call this week to work through it."}
+];
+
+/* ---------------------------------------------------------------------
+   STATE + RETRIEVAL (simple keyword-overlap "similar past emails" search
+   over PAST_EMAILS, standing in for the project's TF-IDF retriever)
+--------------------------------------------------------------------- */
+const STOPWORDS = new Set("the a an and or but of to in on for with is are was were be been being this that i you we they it your our my their as at by from if can will would could should about into over after before".split(" "));
+
+function words(text){
+  return (text.toLowerCase().match(/[a-z0-9]+/g) || []).filter(w => w.length > 2 && !STOPWORDS.has(w));
+}
+
+function findSimilar(subject, body, k = 3){
+  const queryWords = new Set(words(subject + " " + body));
+  const scored = PAST_EMAILS.map(e => {
+    const docWords = new Set(words(e.subject + " " + e.body));
+    let overlap = 0;
+    queryWords.forEach(w => { if (docWords.has(w)) overlap++; });
+    const denom = Math.sqrt(queryWords.size * docWords.size) || 1;
+    return { email: e, score: overlap / denom };
+  });
+  scored.sort((a,b) => b.score - a.score);
+  return scored.slice(0, k).map(s => s.email);
+}
+
+function textSimilarity(a, b){
+  const wa = new Set(words(a));
+  const wb = new Set(words(b));
+  if (wa.size === 0 || wb.size === 0) return 0;
+  let overlap = 0;
+  wa.forEach(w => { if (wb.has(w)) overlap++; });
+  return overlap / Math.sqrt(wa.size * wb.size);
+}
+
+let selected = null; // currently open inbox item or custom email object
+let modelReachable = null;
+
+/* ---------------------------------------------------------------------
+   MODEL CALLS
+--------------------------------------------------------------------- */
+async function callClaude(system, user, maxTokens){
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: maxTokens,
+      system: system,
+      messages: [{ role: "user", content: user }]
+    })
+  });
+  if (!resp.ok) throw new Error("Model request failed (" + resp.status + ")");
+  const data = await resp.json();
+  return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+}
+
+const GEN_SYSTEM = `You draft email replies on behalf of a company's support/sales/ops team. You will see a few real past examples of (incoming email -> reply that was actually sent) to calibrate tone and structure.
+Rules:
+- Write ONLY the reply body. No subject line, no preamble like "Here is a reply:", no markdown.
+- Match the tone of the examples: warm, direct, concrete (use specific numbers/dates/order IDs when given), and always propose a clear next step or resolution.
+- Do not invent facts (prices, dates, policy details) not implied by the incoming email or the examples. If something is genuinely unknown, say you'll confirm and follow up rather than making it up.`;
+
+function buildGenPrompt(subject, body, examples){
+  const blocks = examples.map(e =>
+    `--- Past example ---\nIncoming email: ${e.body}\nReply that was sent: ${e.reply}`
+  ).join("\n\n");
+  return `PAST EXAMPLES (for tone/grounding, not to copy verbatim):\n\n${blocks}\n\nINCOMING EMAIL:\nSubject: ${subject}\n${body}\n\nWrite the reply now, following the rules.`;
+}
+
+const JUDGE_SYSTEM = `You are a strict evaluator of customer-facing email replies. Return ONLY valid JSON, no markdown fences, no commentary, in exactly this shape:
+{
+  "key_point_coverage": [{"point": "<verbatim>", "addressed": true or false, "why": "<one short sentence>"}],
+  "rubric": {"relevance": <1-5>, "completeness": <1-5>, "tone": <1-5>, "actionability": <1-5>},
+  "hallucination": {"flag": true or false, "why": "<one short sentence, empty string if false>"}
+}
+Guidance: relevance = does it address what was asked; completeness = does it fully unblock the sender; tone = professional and appropriately warm; actionability = is there a clear next step or timeframe. hallucination.flag = true only if the reply states a specific fact (price, date, policy, promise) not supported by the incoming email. Be strict on key points: only mark addressed if substantively covered.`;
+
+function buildJudgePrompt(body, keyPoints, reply){
+  const kpList = keyPoints.length ? keyPoints.map(k => "- " + k).join("\n") : "(no checklist provided - skip key_point_coverage, return an empty array for it)";
+  return `INCOMING EMAIL:\n${body}\n\nREQUIRED KEY POINTS:\n${kpList}\n\nCANDIDATE REPLY:\n${reply}\n\nReturn the JSON now.`;
+}
+
+function extractJSON(text){
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("no JSON found");
+  return JSON.parse(match[0]);
+}
+
+/* ---------------------------------------------------------------------
+   RENDERING
+--------------------------------------------------------------------- */
+function renderInbox(){
+  const el = document.getElementById("inboxList");
+  el.innerHTML = '<div class="inbox-title">Inbox &middot; 6 messages</div>';
+  INBOX_EMAILS.forEach(e => {
+    const btn = document.createElement("button");
+    btn.className = "inbox-item" + (selected && selected.id === e.id ? " active" : "");
+    btn.innerHTML = `<div class="subj">${escapeHTML(e.subject)}</div><div class="snip">${escapeHTML(e.body.slice(0,64))}…</div><span class="tag">${e.category}</span>`;
+    btn.onclick = () => { selected = { ...e, custom: false }; renderAll(); };
+    el.appendChild(btn);
+  });
+  const composeBtn = document.createElement("button");
+  composeBtn.className = "compose-toggle";
+  composeBtn.textContent = "+ Paste in a new email";
+  composeBtn.onclick = () => { selected = { custom: true, subject: "", body: "", keyPoints: [], reference: "" }; renderAll(); };
+  el.appendChild(composeBtn);
+}
+
+function escapeHTML(s){
+  return s.replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+
+function renderReader(){
+  const el = document.getElementById("readerPane");
+  if (!selected){
+    el.innerHTML = '<div class="empty-state">Choose an email on the left to get started.</div>';
+    return;
+  }
+  if (selected.custom){
+    el.innerHTML = `
+      <div class="email-block compose-form">
+        <div class="email-meta"><p class="subject" style="margin-bottom:14px;">Paste in a new email</p></div>
+        <label for="cSubject">Subject</label>
+        <input id="cSubject" type="text" placeholder="What's this email about?" value="${escapeHTML(selected.subject)}" />
+        <label for="cBody">Email body</label>
+        <textarea id="cBody" placeholder="Paste the email text here…">${escapeHTML(selected.body)}</textarea>
+        <button class="primary-btn" id="draftBtn">Draft a reply</button>
+        <div class="status-line" id="statusLine"></div>
+        <div id="resultArea"></div>
+      </div>`;
+    document.getElementById("cSubject").oninput = (e) => selected.subject = e.target.value;
+    document.getElementById("cBody").oninput = (e) => selected.body = e.target.value;
+    document.getElementById("draftBtn").onclick = runPipeline;
+  } else {
+    el.innerHTML = `
+      <div class="email-block">
+        <div class="email-meta">
+          <p class="subject">${escapeHTML(selected.subject)}</p>
+          <p class="from">From ${escapeHTML(selected.from)}</p>
+        </div>
+        <div class="email-body">${escapeHTML(selected.body)}</div>
+        <button class="primary-btn" id="draftBtn">Draft a reply</button>
+        <div class="status-line" id="statusLine"></div>
+        <div id="resultArea"></div>
+      </div>`;
+    document.getElementById("draftBtn").onclick = runPipeline;
+  }
+  document.getElementById("qualityPane").innerHTML = `<h2>Quality check</h2><p class="sub">Shows up once a reply has been drafted.</p><div class="quality-empty">Nothing to check yet.</div>`;
+}
+
+function renderAll(){
+  renderInbox();
+  renderReader();
+}
+
+function setStatus(msg, spinning){
+  const s = document.getElementById("statusLine");
+  if (!s) return;
+  s.innerHTML = spinning ? `<span class="spinner"></span><span>${msg}</span>` : `<span>${msg}</span>`;
+}
+
+/* ---------------------------------------------------------------------
+   PIPELINE: retrieve -> draft -> score
+--------------------------------------------------------------------- */
+async function runPipeline(){
+  const btn = document.getElementById("draftBtn");
+  btn.disabled = true;
+  document.getElementById("resultArea").innerHTML = "";
+
+  const subject = selected.subject || "(no subject)";
+  const body = (selected.body || "").trim();
+  if (!body){
+    setStatus("Add some email text first.", false);
+    btn.disabled = false;
+    return;
+  }
+
+  try{
+    setStatus("Reading similar past emails…", true);
+    const examples = findSimilar(subject, body, 3);
+    await sleep(250);
+
+    setStatus("Drafting a reply…", true);
+    const rawReply = await callClaude(GEN_SYSTEM, buildGenPrompt(subject, body, examples), 400);
+    const reply = rawReply.trim();
+
+    renderReplyBox(reply, examples);
+
+    setStatus("Checking reply quality…", true);
+    const rawJudge = await callClaude(JUDGE_SYSTEM, buildJudgePrompt(body, selected.keyPoints || [], reply), 700);
+    let judged;
+    try { judged = extractJSON(rawJudge); }
+    catch(e){ judged = { key_point_coverage: [], rubric: {relevance:3,completeness:3,tone:3,actionability:3}, hallucination:{flag:false,why:""} }; }
+
+    const similarity = selected.reference ? textSimilarity(reply, selected.reference) : null;
+    renderQuality(judged, similarity, (selected.keyPoints || []).length > 0);
+
+    setStatus("Done.", false);
+  } catch(err){
+    console.error(err);
+    document.getElementById("resultArea").innerHTML = `<div class="error-note">Couldn't reach the model just now (${escapeHTML(err.message)}). Please try again.</div>`;
+    setStatus("", false);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+function renderReplyBox(reply, examples){
+  const exampleNote = examples.length
+    ? `Based on ${examples.length} similar past emails, including <strong>${escapeHTML(examples[0].subject)}</strong>${examples[1] ? ' and <strong>' + escapeHTML(examples[1].subject) + '</strong>' : ''}.`
+    : "";
+  document.getElementById("resultArea").innerHTML = `
+    <div class="reply-box">
+      <div class="reply-box-head">
+        <span>Suggested reply</span>
+        <button class="copy-btn" id="copyBtn">Copy</button>
+      </div>
+      <textarea id="replyText">${escapeHTML(reply)}</textarea>
+    </div>
+    <div class="grounding-note">${exampleNote}</div>
+  `;
+  document.getElementById("copyBtn").onclick = () => {
+    navigator.clipboard.writeText(document.getElementById("replyText").value);
+    const b = document.getElementById("copyBtn");
+    b.textContent = "Copied";
+    setTimeout(() => b.textContent = "Copy", 1200);
+  };
+}
+
+function bandFor(score){
+  if (score >= 0.75) return { label: "Ready to send", color: "var(--good)" };
+  if (score >= 0.5) return { label: "Worth a quick look", color: "var(--ink)" };
+  return { label: "Needs work", color: "var(--warn)" };
+}
+
+function renderQuality(judged, similarity, hasChecklist){
+  const coverage = judged.key_point_coverage || [];
+  const coverageScore = coverage.length ? coverage.filter(c => c.addressed).length / coverage.length : null;
+  const rubric = judged.rubric || {relevance:3,completeness:3,tone:3,actionability:3};
+  const rubricAvg = (rubric.relevance + rubric.completeness + rubric.tone + rubric.actionability) / 4;
+  const rubricNorm = (rubricAvg - 1) / 4;
+  const halluc = judged.hallucination || { flag: false, why: "" };
+
+  let overall;
+  if (hasChecklist && coverageScore !== null){
+    const sim = similarity === null ? 0 : similarity;
+    overall = 0.40 * coverageScore + 0.35 * rubricNorm + 0.15 * sim - (halluc.flag ? 0.20 : 0);
+  } else {
+    // No checklist available (custom email) - fall back to a writing-quality-only view.
+    overall = 0.85 * rubricNorm - (halluc.flag ? 0.20 : 0);
+  }
+  overall = Math.max(0, Math.min(1, overall));
+  const band = bandFor(overall);
+  const pct = Math.round(overall * 100);
+
+  const rubricRows = [
+    ["Relevance", rubric.relevance], ["Completeness", rubric.completeness],
+    ["Tone", rubric.tone], ["Clear next step", rubric.actionability]
+  ].map(([label, val]) => `
+    <div class="rubric-row">
+      <div class="rlabel"><span>${label}</span><span>${val}/5</span></div>
+      <div class="rubric-track"><div class="rubric-fill" style="width:${val/5*100}%"></div></div>
+    </div>
+  `).join("");
+
+  const checklistHTML = coverage.length ? `
+    <div class="section-title">Did it cover what mattered?</div>
+    <ul class="checklist">
+      ${coverage.map(c => `
+        <li>
+          <span class="check-icon ${c.addressed ? 'yes' : 'no'}">${c.addressed ? '✓' : '–'}</span>
+          <span>${escapeHTML(c.point)}<span class="why">${escapeHTML(c.why || "")}</span></span>
+        </li>`).join("")}
+    </ul>` : (hasChecklist ? "" : `<div class="section-title">No checklist for custom emails</div><p class="quality-empty" style="padding-top:0;">Showing a writing-quality check only.</p>`);
+
+  const hallucHTML = halluc.flag
+    ? `<div class="halluc-banner">Heads up: this reply may include a detail that wasn't in the original email${halluc.why ? " — " + escapeHTML(halluc.why) : ""}. Double-check before sending.</div>`
+    : `<div class="halluc-ok">No unsupported claims spotted.</div>`;
+
+  document.getElementById("qualityPane").innerHTML = `
+    <h2>Quality check</h2>
+    <p class="sub">${hasChecklist ? "How well this reply covers what the sender needs." : "Writing-quality check (no checklist for custom emails)."}</p>
+    <div class="meter-wrap">
+      <div class="meter-track"><div class="meter-fill" style="width:${pct}%; background:${band.color};"></div></div>
+      <div class="meter-label"><span class="score">${pct}</span><span class="band" style="color:${band.color}">${band.label}</span></div>
+    </div>
+    ${checklistHTML}
+    <div class="section-title">Writing quality</div>
+    ${rubricRows}
+    ${hallucHTML}
+  `;
+}
+
+/* ---------------------------------------------------------------------
+   INIT
+--------------------------------------------------------------------- */
+async function checkModeAndInit(){
+  renderAll();
+  const note = document.getElementById("modeNote");
+  try{
+    await callClaude("Reply with just the word: ready", "ready?", 10);
+    note.textContent = "Connected — replies are generated live";
+    note.classList.add("live");
+  } catch(e){
+    note.textContent = "Model unreachable right now — try Draft a reply to retry";
+  }
+}
+checkModeAndInit();
+</script>
+</body>
+</html>
